@@ -1,0 +1,10 @@
+@page "/admin/users/details/{id:guid}"
+@model Crm.Web.Pages.Admin.UserDetailsModel
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+@{ ViewData["Title"] = "User Details"; }
+<div class="crm-card">
+  <div class="d-flex justify-content-between align-items-center mb-2"><h4 class="mb-0">@Model.UserEntity?.UserName</h4><a class="btn btn-outline-secondary btn-sm" href="/admin/users/list">Back</a></div>
+  <div>Email: @Model.UserEntity?.Email</div>
+  <div>Display Name: @Model.UserEntity?.DisplayName</div>
+  <div>Roles: @string.Join(", ", Model.Roles)</div>
+</div>

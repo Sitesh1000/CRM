@@ -1,0 +1,8 @@
+@page "/admin/roles/details/{id:guid}"
+@model Crm.Web.Pages.Admin.RoleDetailsModel
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+@{ ViewData["Title"] = "Role Details"; }
+<div class="crm-card">
+  <div class="d-flex justify-content-between align-items-center mb-2"><h4 class="mb-0">@Model.RoleEntity?.Name</h4><a class="btn btn-outline-secondary btn-sm" href="/admin/roles/list">Back</a></div>
+  <div>Total users in role: @Model.UserCount</div>
+</div>

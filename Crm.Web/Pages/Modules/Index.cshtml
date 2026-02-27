@@ -1,0 +1,80 @@
+@page "/Modules/{module}"
+@model Crm.Web.Pages.Modules.IndexModel
+@{
+    ViewData["Title"] = Model.Info?.DisplayName ?? "Module";
+}
+
+@if (Model.Info is null)
+{
+    <h3>Module not found</h3>
+}
+else
+{
+    <h2>@Model.Info.DisplayName</h2>
+    <p class="text-muted">Basic CRUD UI. Edit JSON and click save.</p>
+
+    <div class="row g-3">
+        <div class="col-md-8">
+            <button class="btn btn-primary mb-2" onclick="loadData()">Refresh</button>
+            <div class="table-responsive">
+                <table class="table table-striped" id="dataTable"></table>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-body">
+                <label class="form-label">Entity ID (blank for create)</label>
+                <input id="entityId" class="form-control mb-2" />
+                <label class="form-label">JSON payload</label>
+                <textarea id="jsonPayload" class="form-control mb-2" rows="12">{ }</textarea>
+                <button class="btn btn-success mb-2" onclick="saveEntity()">Save</button>
+                <button class="btn btn-danger" onclick="deleteEntity()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const apiPath = '@Model.Info.ApiPath';
+
+        async function loadData() {
+            const res = await fetch(apiPath);
+            const rows = await res.json();
+            const table = document.getElementById('dataTable');
+            table.innerHTML = '';
+            if (!rows.length) {
+                table.innerHTML = '<tr><td>No records found.</td></tr>';
+                return;
+            }
+            const cols = Object.keys(rows[0]);
+            const head = '<thead><tr>' + cols.map(c => `<th>${c}</th>`).join('') + '</tr></thead>';
+            const body = '<tbody>' + rows.map(r => `<tr onclick="pick('${r.id}')">` + cols.map(c => `<td>${r[c] ?? ''}</td>`).join('') + '</tr>').join('') + '</tbody>';
+            table.innerHTML = head + body;
+        }
+
+        async function pick(id) {
+            document.getElementById('entityId').value = id;
+            const res = await fetch(`${apiPath}/${id}`);
+            const row = await res.json();
+            document.getElementById('jsonPayload').value = JSON.stringify(row, null, 2);
+        }
+
+        async function saveEntity() {
+            const id = document.getElementById('entityId').value.trim();
+            const payload = JSON.parse(document.getElementById('jsonPayload').value || '{}');
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `${apiPath}/${id}` : apiPath;
+            await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            await loadData();
+        }
+
+        async function deleteEntity() {
+            const id = document.getElementById('entityId').value.trim();
+            if (!id) return;
+            await fetch(`${apiPath}/${id}`, { method: 'DELETE' });
+            document.getElementById('entityId').value = '';
+            document.getElementById('jsonPayload').value = '{ }';
+            await loadData();
+        }
+
+        loadData();
+    </script>
+}

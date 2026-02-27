@@ -1,0 +1,7 @@
+@page "/quotes/details/{id:guid}"
+@model Crm.Web.Pages.Quotes.DetailsModel
+@{ ViewData["Title"] = "Quote Details"; }
+<div class="crm-card">
+ <div class="d-flex justify-content-between align-items-center mb-2"><h4 class="mb-0">@Model.Quote?.QuoteNumber</h4><a class="btn btn-outline-secondary btn-sm" href="/quotes/list">Back</a></div>
+ <div>Deal: @Model.Quote?.Deal?.Title</div><div>Contact: @Model.Quote?.Contact?.FirstName @Model.Quote?.Contact?.LastName</div><div>Total: @Model.Quote?.TotalAmount.ToString("C")</div>
+</div>

@@ -1,0 +1,31 @@
+@page "/quotes/list"
+@model Crm.Web.Pages.Quotes.IndexModel
+@{ ViewData["Title"] = "Quotes"; }
+<div class="crm-card">
+ <div class="d-flex justify-content-between align-items-center mb-3"><h4 class="mb-0">Quotes List</h4><button class="btn btn-crm" data-bs-toggle="modal" data-bs-target="#quoteModal" onclick="openAddModal()">Add Quote</button></div>
+ <div class="table-responsive">
+  <table class="table align-middle">
+   <thead><tr><th>Quote #</th><th>Deal</th><th>Contact</th><th>Total</th><th style="width:220px">Actions</th></tr></thead>
+   <tbody>
+    @foreach (var q in Model.Quotes)
+    {
+      <tr>
+       <td>@q.QuoteNumber</td><td>@q.Deal?.Title</td><td>@q.Contact?.FirstName @q.Contact?.LastName</td><td>@q.TotalAmount.ToString("C")</td>
+       <td><div class="d-flex gap-2">
+        <a class="btn btn-sm btn-outline-primary" href="/quotes/details/@q.Id">Details</a>
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#quoteModal" data-id="@q.Id" data-quotenumber="@q.QuoteNumber" data-dealid="@q.DealId" data-contactid="@q.ContactId" data-totalamount="@q.TotalAmount" onclick="openEditModal(this)">Edit</button>
+        <form method="post" asp-page-handler="Delete" asp-route-id="@q.Id" onsubmit="return confirm('Delete this quote?');"><button class="btn btn-sm btn-outline-danger">Delete</button></form>
+       </div></td>
+      </tr>
+    }
+   </tbody>
+  </table>
+ </div>
+</div>
+<div class="modal fade" id="quoteModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content"><form method="post" asp-page-handler="Save"><div class="modal-header"><h5 class="modal-title" id="quoteModalTitle">Add Quote</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body row g-2"><input type="hidden" asp-for="Input.Id" id="quote-id" /><div class="col-md-6"><label class="form-label">Quote Number</label><input asp-for="Input.QuoteNumber" id="quote-quotenumber" class="form-control" /></div><div class="col-md-6"><label class="form-label">Total Amount</label><input asp-for="Input.TotalAmount" id="quote-totalamount" class="form-control" /></div><div class="col-md-6"><label class="form-label">Deal</label><select asp-for="Input.DealId" id="quote-dealid" class="form-select"><option value="">Select deal</option>@foreach (var d in Model.Deals){<option value="@d.Id">@d.Title</option>}</select></div><div class="col-md-6"><label class="form-label">Contact</label><select asp-for="Input.ContactId" id="quote-contactid" class="form-select"><option value="">Select contact</option>@foreach (var c in Model.Contacts){<option value="@c.Id">@c.FirstName @c.LastName</option>}</select></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-crm">Save</button></div></form></div></div></div>
+@section Scripts {
+<script>
+function openAddModal(){document.getElementById('quoteModalTitle').textContent='Add Quote';['id','quotenumber','dealid','contactid','totalamount'].forEach(x=>document.getElementById('quote-'+x).value='');}
+function openEditModal(btn){document.getElementById('quoteModalTitle').textContent='Edit Quote';['id','quotenumber','dealid','contactid','totalamount'].forEach(x=>document.getElementById('quote-'+x).value=btn.dataset[x]||'');}
+</script>
+}

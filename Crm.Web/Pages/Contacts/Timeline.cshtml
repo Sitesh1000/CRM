@@ -1,0 +1,40 @@
+@page "/Contacts/Timeline"
+@model Crm.Web.Pages.Contacts.TimelineModel
+@{
+    ViewData["Title"] = "Contact Timeline";
+}
+
+<div class="crm-card">
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-9">
+            <input class="form-control" type="text" name="contactId" value="@Model.ContactId" placeholder="Enter contact id" />
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-crm w-100" type="submit">Load Timeline</button>
+        </div>
+    </form>
+
+    @if (Model.Contact is not null)
+    {
+        <h5>@Model.Contact.FirstName @Model.Contact.LastName</h5>
+        <p class="text-muted">@Model.Contact.Email</p>
+
+        <ul class="timeline-list">
+            @foreach (var item in Model.Items)
+            {
+                <li>
+                    <div class="timeline-dot @(item.IsCompleted ? "is-complete" : "")"></div>
+                    <div>
+                        <strong>@item.Type</strong>
+                        <div class="small text-muted">@item.Description</div>
+                        <div class="small">Created @item.CreatedAt.ToString("dd MMM yyyy")</div>
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <div class="text-muted">Select a contact id to view timeline.</div>
+    }
+</div>

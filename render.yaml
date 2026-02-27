@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: orbit-crm
+    runtime: dotnet
+    plan: free
+    buildCommand: dotnet publish Crm.Web/Crm.Web.csproj -c Release -o out
+    startCommand: dotnet out/Crm.Web.dll --urls http://0.0.0.0:$PORT
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        value: Data Source=/var/data/crm.db
+    disk:
+      name: crm-data
+      mountPath: /var/data
+      sizeGB: 1

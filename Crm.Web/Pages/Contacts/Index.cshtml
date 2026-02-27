@@ -1,0 +1,129 @@
+@page "/contacts/list"
+@model Crm.Web.Pages.Contacts.IndexModel
+@{
+    ViewData["Title"] = "Contacts";
+}
+
+<div class="crm-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Contacts List</h4>
+        <button class="btn btn-crm" type="button" data-bs-toggle="modal" data-bs-target="#contactModal" onclick="openAddModal()">Add Contact</button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Company</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th style="width:220px">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var c in Model.Contacts)
+            {
+                <tr>
+                    <td><strong>@c.FirstName @c.LastName</strong></td>
+                    <td>@c.Company?.Name</td>
+                    <td>@c.Email</td>
+                    <td>@c.Phone</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-sm btn-outline-primary" href="/contacts/details/@c.Id">Details</a>
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-secondary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#contactModal"
+                                data-id="@c.Id"
+                                data-firstname="@c.FirstName"
+                                data-lastname="@c.LastName"
+                                data-email="@c.Email"
+                                data-phone="@c.Phone"
+                                data-companyid="@c.CompanyId"
+                                onclick="openEditModal(this)">Edit</button>
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@c.Id" onsubmit="return confirm('Delete this contact?');">
+                                <button class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Save">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contactModalTitle">Add Contact</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" asp-for="Input.Id" id="contact-id" />
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="form-label">First Name</label>
+                            <input asp-for="Input.FirstName" id="contact-firstname" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Last Name</label>
+                            <input asp-for="Input.LastName" id="contact-lastname" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email</label>
+                            <input asp-for="Input.Email" id="contact-email" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone</label>
+                            <input asp-for="Input.Phone" id="contact-phone" class="form-control" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Company</label>
+                            <select asp-for="Input.CompanyId" id="contact-companyid" class="form-select">
+                                <option value="">No company</option>
+                                @foreach (var co in Model.Companies)
+                                {
+                                    <option value="@co.Id">@co.Name</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-crm">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function openAddModal() {
+        document.getElementById('contactModalTitle').textContent = 'Add Contact';
+        document.getElementById('contact-id').value = '';
+        document.getElementById('contact-firstname').value = '';
+        document.getElementById('contact-lastname').value = '';
+        document.getElementById('contact-email').value = '';
+        document.getElementById('contact-phone').value = '';
+        document.getElementById('contact-companyid').value = '';
+    }
+
+    function openEditModal(button) {
+        document.getElementById('contactModalTitle').textContent = 'Edit Contact';
+        document.getElementById('contact-id').value = button.dataset.id || '';
+        document.getElementById('contact-firstname').value = button.dataset.firstname || '';
+        document.getElementById('contact-lastname').value = button.dataset.lastname || '';
+        document.getElementById('contact-email').value = button.dataset.email || '';
+        document.getElementById('contact-phone').value = button.dataset.phone || '';
+        document.getElementById('contact-companyid').value = button.dataset.companyid || '';
+    }
+</script>
+}

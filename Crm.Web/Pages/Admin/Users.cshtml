@@ -1,0 +1,78 @@
+@page "/admin/users/list"
+@model Crm.Web.Pages.Admin.UsersModel
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+@{ ViewData["Title"] = "Users"; }
+
+<div class="crm-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Users List</h4>
+        <button class="btn btn-crm" type="button" data-bs-toggle="modal" data-bs-target="#userModal" onclick="openAddModal()">Add User</button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead><tr><th>UserName</th><th>Email</th><th>Display Name</th><th>Role</th><th style="width:220px">Actions</th></tr></thead>
+            <tbody>
+            @foreach (var u in Model.Users)
+            {
+                var role = Model.UserRoles.TryGetValue(u.Id, out var roles) ? roles.FirstOrDefault() : string.Empty;
+                <tr>
+                    <td>@u.UserName</td><td>@u.Email</td><td>@u.DisplayName</td><td>@role</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-sm btn-outline-primary" href="/admin/users/details/@u.Id">Details</a>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#userModal" data-id="@u.Id" data-username="@u.UserName" data-email="@u.Email" data-displayname="@u.DisplayName" data-role="@role" onclick="openEditModal(this)">Edit</button>
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@u.Id" onsubmit="return confirm('Delete this user?');"><button class="btn btn-sm btn-outline-danger">Delete</button></form>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="userModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Save">
+                <div class="modal-header"><h5 class="modal-title" id="userModalTitle">Add User</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body row g-2">
+                    <input type="hidden" asp-for="Input.Id" id="user-id" />
+                    <div class="col-md-6"><label class="form-label">UserName</label><input asp-for="Input.UserName" id="user-username" class="form-control" required /></div>
+                    <div class="col-md-6"><label class="form-label">Email</label><input asp-for="Input.Email" id="user-email" class="form-control" required /></div>
+                    <div class="col-md-6"><label class="form-label">Display Name</label><input asp-for="Input.DisplayName" id="user-displayname" class="form-control" /></div>
+                    <div class="col-md-3">
+                        <label class="form-label">Role</label>
+                        <select asp-for="Input.Role" id="user-role" class="form-select">
+                            @foreach (var roleName in Model.AvailableRoles)
+                            {
+                                <option value="@roleName">@roleName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3"><label class="form-label">Password</label><input asp-for="Input.Password" id="user-password" class="form-control" placeholder="Leave blank to keep" /></div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-crm">Save</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function openAddModal(){
+    document.getElementById('userModalTitle').textContent='Add User';
+    ['id','username','email','displayname','password'].forEach(x=>document.getElementById('user-'+x).value='');
+    const roleSelect = document.getElementById('user-role');
+    if (roleSelect.options.length > 0) roleSelect.value = roleSelect.options[0].value;
+}
+function openEditModal(btn){
+    document.getElementById('userModalTitle').textContent='Edit User';
+    ['id','username','email','displayname'].forEach(x=>document.getElementById('user-'+x).value=btn.dataset[x]||'');
+    document.getElementById('user-password').value='';
+    const roleSelect = document.getElementById('user-role');
+    if (btn.dataset.role) roleSelect.value = btn.dataset.role;
+}
+</script>
+}

@@ -1,0 +1,8 @@
+@page "/leads/details/{id:guid}"
+@model Crm.Web.Pages.Leads.DetailsModel
+@{ ViewData["Title"] = "Lead Details"; }
+<div class="crm-card">
+  <div class="d-flex justify-content-between align-items-center mb-2"><h4 class="mb-0">@Model.Lead?.Name</h4><a class="btn btn-outline-secondary btn-sm" href="/leads/list">Back</a></div>
+  <div>Email: @Model.Lead?.Email</div><div>Phone: @Model.Lead?.Phone</div><div>Company: @Model.Lead?.CompanyName</div><div>Source: @Model.Lead?.Source</div>
+  <div>Status: @(Model.Lead?.IsConverted == true ? "Converted" : "Open")</div>
+</div>

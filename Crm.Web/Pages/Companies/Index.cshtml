@@ -1,0 +1,125 @@
+@page "/companies/list"
+@model Crm.Web.Pages.Companies.IndexModel
+@{
+    ViewData["Title"] = "Companies";
+}
+
+<div class="crm-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Companies List</h4>
+        <button class="btn btn-crm" type="button" data-bs-toggle="modal" data-bs-target="#companyModal" onclick="openAddModal()">Add Company</button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Industry</th>
+                    <th>Website</th>
+                    <th>Contacts</th>
+                    <th>Phone</th>
+                    <th style="width:220px">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var company in Model.Companies)
+            {
+                <tr>
+                    <td><strong>@company.Name</strong></td>
+                    <td>@company.Industry</td>
+                    <td>@company.Website</td>
+                    <td>@company.Contacts.Count</td>
+                    <td>@company.Phone</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-sm btn-outline-primary" href="/companies/details/@company.Id">Details</a>
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-secondary"
+                                data-bs-toggle="modal"
+                                data-bs-target="#companyModal"
+                                data-id="@company.Id"
+                                data-name="@company.Name"
+                                data-industry="@company.Industry"
+                                data-website="@company.Website"
+                                data-phone="@company.Phone"
+                                data-address="@company.Address"
+                                onclick="openEditModal(this)">Edit</button>
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@company.Id" onsubmit="return confirm('Delete this company?');">
+                                <button class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="companyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Save">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="companyModalTitle">Add Company</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" asp-for="Input.Id" id="company-id" />
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="form-label">Name</label>
+                            <input asp-for="Input.Name" id="company-name" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Industry</label>
+                            <input asp-for="Input.Industry" id="company-industry" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Website</label>
+                            <input asp-for="Input.Website" id="company-website" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Phone</label>
+                            <input asp-for="Input.Phone" id="company-phone" class="form-control" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Address</label>
+                            <textarea asp-for="Input.Address" id="company-address" rows="3" class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-crm">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function openAddModal() {
+        document.getElementById('companyModalTitle').textContent = 'Add Company';
+        document.getElementById('company-id').value = '';
+        document.getElementById('company-name').value = '';
+        document.getElementById('company-industry').value = '';
+        document.getElementById('company-website').value = '';
+        document.getElementById('company-phone').value = '';
+        document.getElementById('company-address').value = '';
+    }
+
+    function openEditModal(button) {
+        document.getElementById('companyModalTitle').textContent = 'Edit Company';
+        document.getElementById('company-id').value = button.dataset.id || '';
+        document.getElementById('company-name').value = button.dataset.name || '';
+        document.getElementById('company-industry').value = button.dataset.industry || '';
+        document.getElementById('company-website').value = button.dataset.website || '';
+        document.getElementById('company-phone').value = button.dataset.phone || '';
+        document.getElementById('company-address').value = button.dataset.address || '';
+    }
+</script>
+}

@@ -1,0 +1,44 @@
+@page "/companies/details/{id:guid}"
+@model Crm.Web.Pages.Companies.DetailsModel
+@{
+    ViewData["Title"] = "Company Details";
+}
+
+@if (Model.Company is null)
+{
+    <div class="crm-card">Company not found.</div>
+}
+else
+{
+    <div class="crm-card mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h4 class="mb-0">@Model.Company.Name</h4>
+            <a class="btn btn-outline-secondary btn-sm" href="/companies/list">Back to List</a>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6"><strong>Industry:</strong> @Model.Company.Industry</div>
+            <div class="col-md-6"><strong>Phone:</strong> @Model.Company.Phone</div>
+            <div class="col-md-6"><strong>Website:</strong> @Model.Company.Website</div>
+            <div class="col-md-6"><strong>Address:</strong> @Model.Company.Address</div>
+        </div>
+    </div>
+
+    <div class="crm-card">
+        <h5>Contacts (@Model.Company.Contacts.Count)</h5>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Name</th><th>Email</th><th>Phone</th></tr></thead>
+                <tbody>
+                @foreach (var contact in Model.Company.Contacts)
+                {
+                    <tr>
+                        <td>@contact.FirstName @contact.LastName</td>
+                        <td>@contact.Email</td>
+                        <td>@contact.Phone</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

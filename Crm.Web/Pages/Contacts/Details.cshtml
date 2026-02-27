@@ -1,0 +1,41 @@
+@page "/contacts/details/{id:guid}"
+@model Crm.Web.Pages.Contacts.DetailsModel
+@{
+    ViewData["Title"] = "Contact Details";
+}
+
+@if (Model.Contact is null)
+{
+    <div class="crm-card">Contact not found.</div>
+}
+else
+{
+    <div class="crm-card mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h4 class="mb-0">@Model.Contact.FirstName @Model.Contact.LastName</h4>
+            <a class="btn btn-outline-secondary btn-sm" href="/contacts/list">Back to List</a>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6"><strong>Email:</strong> @Model.Contact.Email</div>
+            <div class="col-md-6"><strong>Phone:</strong> @Model.Contact.Phone</div>
+            <div class="col-md-6"><strong>Company:</strong> @Model.Contact.Company?.Name</div>
+        </div>
+    </div>
+
+    <div class="crm-card">
+        <h5>Recent Activities</h5>
+        <ul class="timeline-list">
+            @foreach (var item in Model.Activities)
+            {
+                <li>
+                    <div class="timeline-dot @(item.IsCompleted ? "is-complete" : "")"></div>
+                    <div>
+                        <strong>@item.Type</strong>
+                        <div class="small text-muted">@item.Description</div>
+                        <div class="small">@item.CreatedAt.ToString("dd MMM yyyy")</div>
+                    </div>
+                </li>
+            }
+        </ul>
+    </div>
+}

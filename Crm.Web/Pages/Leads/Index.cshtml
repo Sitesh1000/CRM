@@ -1,0 +1,84 @@
+@page "/leads/list"
+@model Crm.Web.Pages.Leads.IndexModel
+@{
+    ViewData["Title"] = "Leads";
+}
+
+<div class="crm-card">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Leads List</h4>
+        <button class="btn btn-crm" type="button" data-bs-toggle="modal" data-bs-target="#leadModal" onclick="openAddModal()">Add Lead</button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead><tr><th>Name</th><th>Company</th><th>Source</th><th>Status</th><th style="width:320px">Actions</th></tr></thead>
+            <tbody>
+            @foreach (var lead in Model.Leads)
+            {
+                <tr>
+                    <td><strong>@lead.Name</strong><div class="small text-muted">@lead.Email</div></td>
+                    <td>@lead.CompanyName</td>
+                    <td>@lead.Source</td>
+                    <td>@(lead.IsConverted ? "Converted" : "Open")</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a class="btn btn-sm btn-outline-primary" href="/leads/details/@lead.Id">Details</a>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#leadModal"
+                                    data-id="@lead.Id" data-name="@lead.Name" data-email="@lead.Email" data-phone="@lead.Phone" data-companyname="@lead.CompanyName" data-source="@lead.Source"
+                                    onclick="openEditModal(this)">Edit</button>
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@lead.Id" onsubmit="return confirm('Delete this lead?');">
+                                <button class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                            @if (!lead.IsConverted)
+                            {
+                                <form method="post" asp-page-handler="Convert" asp-route-id="@lead.Id">
+                                    <button class="btn btn-sm btn-warning">Convert</button>
+                                </form>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="leadModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post" asp-page-handler="Save">
+        <div class="modal-header">
+          <h5 class="modal-title" id="leadModalTitle">Add Lead</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body row g-2">
+          <input type="hidden" asp-for="Input.Id" id="lead-id" />
+          <div class="col-md-6"><label class="form-label">Name</label><input asp-for="Input.Name" id="lead-name" class="form-control" required /></div>
+          <div class="col-md-6"><label class="form-label">Email</label><input asp-for="Input.Email" id="lead-email" class="form-control" required /></div>
+          <div class="col-md-6"><label class="form-label">Phone</label><input asp-for="Input.Phone" id="lead-phone" class="form-control" /></div>
+          <div class="col-md-6"><label class="form-label">Company</label><input asp-for="Input.CompanyName" id="lead-companyname" class="form-control" /></div>
+          <div class="col-12"><label class="form-label">Source</label><input asp-for="Input.Source" id="lead-source" class="form-control" /></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-crm">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script>
+function openAddModal(){
+ document.getElementById('leadModalTitle').textContent='Add Lead';
+ ['id','name','email','phone','companyname','source'].forEach(x=>document.getElementById('lead-'+x).value='');
+}
+function openEditModal(btn){
+ document.getElementById('leadModalTitle').textContent='Edit Lead';
+ ['id','name','email','phone','companyname','source'].forEach(x=>document.getElementById('lead-'+x).value=btn.dataset[x]||'');
+}
+</script>
+}

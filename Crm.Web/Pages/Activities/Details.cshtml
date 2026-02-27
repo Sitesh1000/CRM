@@ -1,0 +1,11 @@
+@page "/activities/details/{id:guid}"
+@model Crm.Web.Pages.Activities.DetailsModel
+@{ ViewData["Title"] = "Activity Details"; }
+<div class="crm-card">
+ <div class="d-flex justify-content-between align-items-center mb-2"><h4 class="mb-0">@Model.Activity?.Type</h4><a class="btn btn-outline-secondary btn-sm" href="/activities/list">Back</a></div>
+ <div>Contact: @Model.Activity?.Contact?.FirstName @Model.Activity?.Contact?.LastName</div>
+ <div>Deal: @Model.Activity?.Deal?.Title</div>
+ <div>Due: @Model.Activity?.DueAt?.ToString("dd MMM yyyy")</div>
+ <div>Status: @(Model.Activity?.IsCompleted == true ? "Completed" : "Open")</div>
+ <div class="mt-2">@Model.Activity?.Description</div>
+</div>
