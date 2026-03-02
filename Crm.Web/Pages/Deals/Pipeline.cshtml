@@ -19,20 +19,43 @@
             <h6>@stage</h6>
             <span>@Model.Board[stage].Count</span>
         </header>
+
         @foreach (var deal in Model.Board[stage])
         {
             <article class="deal-card">
                 <strong>@deal.Title</strong>
-                <div class="small text-muted">@deal.Contact?.FirstName @deal.Contact?.LastName</div>
-                <div>@deal.Amount.ToString("C0")</div>
-                <div class="small">Expected: @deal.ExpectedCloseDate?.ToString("dd MMM yyyy")</div>
+                <div class="small text-muted">
+                    @deal.Contact?.FirstName @deal.Contact?.LastName
+                </div>
+
+                <!-- ✅ FIXED INR FORMAT -->
+                <div>₹@deal.Amount.ToString("N0")</div>
+
+                <div class="small">
+                    Expected: @deal.ExpectedCloseDate?.ToString("dd MMM yyyy")
+                </div>
 
                 <div class="d-flex gap-2 mt-2 mb-2">
                     <a class="btn btn-sm btn-outline-primary" href="/deals/details/@deal.Id">Details</a>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#dealModal"
-                            data-id="@deal.Id" data-title="@deal.Title" data-amount="@deal.Amount" data-stage="@deal.Stage" data-contactid="@deal.ContactId" data-expectedclosedate="@(deal.ExpectedCloseDate?.ToString("yyyy-MM-dd"))"
-                            onclick="openEditModal(this)">Edit</button>
-                    <form method="post" asp-page-handler="Delete" asp-route-id="@deal.Id" onsubmit="return confirm('Delete this deal?');">
+
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#dealModal"
+                            data-id="@deal.Id"
+                            data-title="@deal.Title"
+                            data-amount="@deal.Amount"
+                            data-stage="@deal.Stage"
+                            data-contactid="@deal.ContactId"
+                            data-expectedclosedate="@(deal.ExpectedCloseDate?.ToString("yyyy-MM-dd"))"
+                            onclick="openEditModal(this)">
+                        Edit
+                    </button>
+
+                    <form method="post"
+                          asp-page-handler="Delete"
+                          asp-route-id="@deal.Id"
+                          onsubmit="return confirm('Delete this deal?');">
                         <button class="btn btn-sm btn-outline-danger">Delete</button>
                     </form>
                 </div>
@@ -40,8 +63,15 @@
                 <div class="btn-group btn-group-sm mt-2 w-100">
                     @foreach (var target in stages)
                     {
-                        <form method="post" asp-page-handler="Move" asp-route-id="@deal.Id" asp-route-stage="@target" class="flex-fill">
-                            <button class="btn @(target == deal.Stage ? "btn-dark" : "btn-outline-secondary") w-100" type="submit">@target.ToString()[0]</button>
+                        <form method="post"
+                              asp-page-handler="Move"
+                              asp-route-id="@deal.Id"
+                              asp-route-stage="@target"
+                              class="flex-fill">
+                            <button class="btn @(target == deal.Stage ? "btn-dark" : "btn-outline-secondary") w-100"
+                                    type="submit">
+                                @target.ToString()[0]
+                            </button>
                         </form>
                     }
                 </div>
@@ -51,6 +81,7 @@
 }
 </div>
 
+<!-- Modal -->
 <div class="modal fade" id="dealModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -59,16 +90,56 @@
                     <h5 class="modal-title" id="dealModalTitle">Add Deal</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body row g-2">
                     <input type="hidden" asp-for="Input.Id" id="deal-id" />
-                    <div class="col-md-6"><label class="form-label">Title</label><input asp-for="Input.Title" id="deal-title" class="form-control" required /></div>
-                    <div class="col-md-3"><label class="form-label">Amount</label><input asp-for="Input.Amount" id="deal-amount" class="form-control" /></div>
-                    <div class="col-md-3"><label class="form-label">Stage</label><select asp-for="Input.Stage" id="deal-stage" asp-items="Html.GetEnumSelectList<DealStage>()" class="form-select"></select></div>
-                    <div class="col-md-6"><label class="form-label">Contact</label><select asp-for="Input.ContactId" id="deal-contactid" class="form-select"><option value="">No contact</option>@foreach (var c in Model.Contacts){<option value="@c.Id">@c.FirstName @c.LastName</option>}</select></div>
-                    <div class="col-md-6"><label class="form-label">Expected Close Date</label><input asp-for="Input.ExpectedCloseDate" type="date" id="deal-expectedclosedate" class="form-control" /></div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Title</label>
+                        <input asp-for="Input.Title" id="deal-title" class="form-control" required />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Amount</label>
+                        <input asp-for="Input.Amount" id="deal-amount" class="form-control" />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Stage</label>
+                        <select asp-for="Input.Stage"
+                                id="deal-stage"
+                                asp-items="Html.GetEnumSelectList<DealStage>()"
+                                class="form-select"></select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Contact</label>
+                        <select asp-for="Input.ContactId"
+                                id="deal-contactid"
+                                class="form-select">
+                            <option value="">No contact</option>
+                            @foreach (var c in Model.Contacts)
+                            {
+                                <option value="@c.Id">@c.FirstName @c.LastName</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Expected Close Date</label>
+                        <input asp-for="Input.ExpectedCloseDate"
+                               type="date"
+                               id="deal-expectedclosedate"
+                               class="form-control" />
+                    </div>
                 </div>
+
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
                     <button type="submit" class="btn btn-crm">Save</button>
                 </div>
             </form>
@@ -78,7 +149,18 @@
 
 @section Scripts {
 <script>
-function openAddModal(){document.getElementById('dealModalTitle').textContent='Add Deal';['id','title','amount','contactid','expectedclosedate'].forEach(x=>document.getElementById('deal-'+x).value='');document.getElementById('deal-stage').value='Qualification';}
-function openEditModal(btn){document.getElementById('dealModalTitle').textContent='Edit Deal';['id','title','amount','contactid','expectedclosedate'].forEach(x=>document.getElementById('deal-'+x).value=btn.dataset[x]||'');document.getElementById('deal-stage').value=btn.dataset.stage||'Qualification';}
+function openAddModal(){
+    document.getElementById('dealModalTitle').textContent='Add Deal';
+    ['id','title','amount','contactid','expectedclosedate']
+        .forEach(x=>document.getElementById('deal-'+x).value='');
+    document.getElementById('deal-stage').value='Qualification';
+}
+
+function openEditModal(btn){
+    document.getElementById('dealModalTitle').textContent='Edit Deal';
+    ['id','title','amount','contactid','expectedclosedate']
+        .forEach(x=>document.getElementById('deal-'+x).value=btn.dataset[x]||'');
+    document.getElementById('deal-stage').value=btn.dataset.stage||'Qualification';
+}
 </script>
 }
