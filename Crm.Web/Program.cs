@@ -3,13 +3,15 @@ using Crm.Web.Api;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
-var defaultConnection = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=App_Data/crm.db";
 
-EnsureSqliteDirectory(defaultConnection, builder.Environment.ContentRootPath);
+// 🔥 ADD THIS FOR RENDER
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://*:{port}");
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme).AddIdentityCookies();
 builder.Services.AddAuthorization();
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Auth/Login";
@@ -22,11 +24,13 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AllowAnonymousToPage("/Auth/Login");
     options.Conventions.AllowAnonymousToPage("/Auth/AccessDenied");
 });
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
+Directory.CreateDirectory(Path.Combine(app.Environment.ContentRootPath, "App_Data"));
 await DependencyInjection.SeedDemoDataAsync(app.Services);
 
 if (!app.Environment.IsDevelopment())
@@ -46,32 +50,3 @@ app.MapCrmApis();
 app.MapGet("/", () => Results.Redirect("/Dashboard"));
 
 app.Run();
-
-static void EnsureSqliteDirectory(string connectionString, string contentRootPath)
-{
-    var dataSourcePart = connectionString
-        .Split(';', StringSplitOptions.RemoveEmptyEntries)
-        .FirstOrDefault(x => x.TrimStart().StartsWith("Data Source=", StringComparison.OrdinalIgnoreCase));
-
-    if (string.IsNullOrWhiteSpace(dataSourcePart))
-    {
-        return;
-    }
-
-    var sqlitePath = dataSourcePart[(dataSourcePart.IndexOf('=') + 1)..].Trim().Trim('"');
-    if (string.IsNullOrWhiteSpace(sqlitePath) || sqlitePath == ":memory:")
-    {
-        return;
-    }
-
-    if (!Path.IsPathRooted(sqlitePath))
-    {
-        sqlitePath = Path.Combine(contentRootPath, sqlitePath);
-    }
-
-    var directory = Path.GetDirectoryName(sqlitePath);
-    if (!string.IsNullOrWhiteSpace(directory))
-    {
-        Directory.CreateDirectory(directory);
-    }
-}
