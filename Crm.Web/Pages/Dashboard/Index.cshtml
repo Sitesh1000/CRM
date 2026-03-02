@@ -1,7 +1,9 @@
 @page "/Dashboard"
 @model Crm.Web.Pages.Dashboard.IndexModel
+@using System.Globalization
 @{
     ViewData["Title"] = "Dashboard";
+    var india = new CultureInfo("en-IN");
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -17,9 +19,27 @@
     <div class="col-6 col-lg-3"><div class="metric-card"><span>Contacts</span><strong>@Model.Metrics.TotalContacts</strong></div></div>
     <div class="col-6 col-lg-3"><div class="metric-card"><span>Open Leads</span><strong>@Model.Metrics.OpenLeads</strong></div></div>
     <div class="col-6 col-lg-3"><div class="metric-card"><span>Active Deals</span><strong>@Model.Metrics.ActiveDeals</strong></div></div>
-    <div class="col-md-4"><div class="metric-card"><span>Pipeline Value</span><strong>@Model.Metrics.PipelineValue.ToString("C0")</strong></div></div>
-    <div class="col-md-4"><div class="metric-card"><span>Invoiced</span><strong>@Model.Metrics.InvoicedAmount.ToString("C0")</strong></div></div>
-    <div class="col-md-4"><div class="metric-card"><span>Payments Received</span><strong>@Model.Metrics.ReceivedPayments.ToString("C0")</strong></div></div>
+
+    <div class="col-md-4">
+        <div class="metric-card">
+            <span>Pipeline Value</span>
+            <strong>@Model.Metrics.PipelineValue.ToString("C0", india)</strong>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="metric-card">
+            <span>Invoiced</span>
+            <strong>@Model.Metrics.InvoicedAmount.ToString("C0", india)</strong>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="metric-card">
+            <span>Payments Received</span>
+            <strong>@Model.Metrics.ReceivedPayments.ToString("C0", india)</strong>
+        </div>
+    </div>
 </div>
 
 <div class="row g-3">
@@ -27,20 +47,34 @@
         <div class="crm-card">
             <h5 class="mb-3">Top Active Deals</h5>
             <table class="table table-sm align-middle">
-                <thead><tr><th>Deal</th><th>Stage</th><th class="text-end">Amount</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Deal</th>
+                        <th>Stage</th>
+                        <th class="text-end">Amount</th>
+                    </tr>
+                </thead>
                 <tbody>
                 @foreach (var d in Model.ActiveDeals)
                 {
                     <tr>
-                        <td>@d.Title <div class="small text-muted">@d.Contact?.FirstName @d.Contact?.LastName</div></td>
-                        <td><span class="badge text-bg-light">@d.Stage</span></td>
-                        <td class="text-end">@d.Amount.ToString("C0")</td>
+                        <td>
+                            @d.Title
+                            <div class="small text-muted">@d.Contact?.FirstName @d.Contact?.LastName</div>
+                        </td>
+                        <td>
+                            <span class="badge text-bg-light">@d.Stage</span>
+                        </td>
+                        <td class="text-end">
+                            @d.Amount.ToString("C0", india)
+                        </td>
                     </tr>
                 }
                 </tbody>
             </table>
         </div>
     </div>
+
     <div class="col-lg-6">
         <div class="crm-card">
             <h5 class="mb-3">Upcoming Activities</h5>
@@ -52,7 +86,9 @@
                     <div>
                         <strong>@a.Type</strong> for @a.Contact?.FirstName @a.Contact?.LastName
                         <div class="small text-muted">@a.Description</div>
-                        <div class="small">Due: @(a.DueAt?.ToString("dd MMM yyyy") ?? "No due date")</div>
+                        <div class="small">
+                            Due: @(a.DueAt?.ToString("dd MMM yyyy") ?? "No due date")
+                        </div>
                     </div>
                 </li>
             }
@@ -65,12 +101,22 @@
     <h5 class="mb-3">Latest Leads</h5>
     <div class="table-responsive">
         <table class="table align-middle">
-            <thead><tr><th>Name</th><th>Company</th><th>Source</th><th>Status</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Company</th>
+                    <th>Source</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
             <tbody>
             @foreach (var lead in Model.LatestLeads)
             {
                 <tr>
-                    <td>@lead.Name<div class="small text-muted">@lead.Email</div></td>
+                    <td>
+                        @lead.Name
+                        <div class="small text-muted">@lead.Email</div>
+                    </td>
                     <td>@lead.CompanyName</td>
                     <td>@lead.Source</td>
                     <td>@(lead.IsConverted ? "Converted" : "Open")</td>
