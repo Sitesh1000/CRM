@@ -17,6 +17,7 @@ public class IndexModel : PageModel
     }
 
     public List<Lead> Leads { get; private set; } = new();
+    public List<string> CompanyOptions { get; private set; } = new();
 
     [BindProperty]
     public InputModel Input { get; set; } = new();
@@ -27,10 +28,23 @@ public class IndexModel : PageModel
             .Include(x => x.ConvertedContact)
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync();
+
+        await LoadCompanyOptionsAsync();
     }
 
     public async Task<IActionResult> OnPostSaveAsync()
     {
+        var companyName = Input.CompanyName?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(companyName))
+        {
+            var companyExists = await _dbContext.Companies.AnyAsync(x => x.Name == companyName);
+            if (!companyExists)
+            {
+                _dbContext.Companies.Add(new Company { Name = companyName });
+            }
+        }
+
         if (Input.Id is null || Input.Id == Guid.Empty)
         {
             _dbContext.Leads.Add(new Lead
@@ -38,7 +52,7 @@ public class IndexModel : PageModel
                 Name = Input.Name,
                 Email = Input.Email,
                 Phone = Input.Phone,
-                CompanyName = Input.CompanyName,
+                CompanyName = companyName,
                 Source = Input.Source
             });
         }
@@ -50,7 +64,7 @@ public class IndexModel : PageModel
                 existing.Name = Input.Name;
                 existing.Email = Input.Email;
                 existing.Phone = Input.Phone;
-                existing.CompanyName = Input.CompanyName;
+                existing.CompanyName = companyName;
                 existing.Source = Input.Source;
             }
         }
@@ -125,5 +139,25 @@ public class IndexModel : PageModel
         public string? Phone { get; set; }
         public string? CompanyName { get; set; }
         public string? Source { get; set; }
+    }
+
+    private async Task LoadCompanyOptionsAsync()
+    {
+        var companyNames = await _dbContext.Companies
+            .Select(x => x.Name)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .ToListAsync();
+
+        var leadCompanyNames = await _dbContext.Leads
+            .Select(x => x.CompanyName)
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .Select(x => x!)
+            .ToListAsync();
+
+        CompanyOptions = companyNames
+            .Concat(leadCompanyNames)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(x => x)
+            .ToList();
     }
 }

@@ -58,7 +58,16 @@
           <div class="col-md-6"><label class="form-label">Name</label><input asp-for="Input.Name" id="lead-name" class="form-control" required /></div>
           <div class="col-md-6"><label class="form-label">Email</label><input asp-for="Input.Email" id="lead-email" class="form-control" required /></div>
           <div class="col-md-6"><label class="form-label">Phone</label><input asp-for="Input.Phone" id="lead-phone" class="form-control" /></div>
-          <div class="col-md-6"><label class="form-label">Company</label><input asp-for="Input.CompanyName" id="lead-companyname" class="form-control" /></div>
+          <div class="col-md-6">
+              <label class="form-label">Company</label>
+              <input asp-for="Input.CompanyName" id="lead-companyname" class="form-control" list="lead-company-options" />
+              <datalist id="lead-company-options">
+                  @foreach (var companyName in Model.CompanyOptions)
+                  {
+                      <option value="@companyName"></option>
+                  }
+              </datalist>
+          </div>
           <div class="col-12"><label class="form-label">Source</label><input asp-for="Input.Source" id="lead-source" class="form-control" /></div>
         </div>
         <div class="modal-footer">
