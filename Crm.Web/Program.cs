@@ -32,6 +32,9 @@ builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
+var resolvedDbPath = DependencyInjection.ResolveSqliteDataSource(app.Configuration, app.Environment.ContentRootPath);
+app.Logger.LogInformation("SQLite database path: {DatabasePath}", resolvedDbPath);
+
 await DependencyInjection.SeedDemoDataAsync(app.Services);
 
 if (!app.Environment.IsDevelopment())

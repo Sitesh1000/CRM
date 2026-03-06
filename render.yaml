@@ -8,6 +8,8 @@ services:
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
+      - key: CRM_DB_PATH
+        value: /var/data/crm.db
       - key: ConnectionStrings__DefaultConnection
         value: Data Source=/var/data/crm.db
     disk:

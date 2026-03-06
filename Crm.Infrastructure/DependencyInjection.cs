@@ -42,7 +42,26 @@ public static class DependencyInjection
         return services;
     }
 
+    public static string ResolveSqliteDataSource(IConfiguration configuration, string contentRootPath)
+    {
+        var sqlite = BuildSqliteConnectionString(configuration, contentRootPath);
+        return sqlite.DataSource;
+    }
+
     private static string ResolveSqliteConnectionString(IConfiguration configuration, string contentRootPath)
+    {
+        var sqlite = BuildSqliteConnectionString(configuration, contentRootPath);
+
+        var dbDirectory = Path.GetDirectoryName(sqlite.DataSource);
+        if (!string.IsNullOrWhiteSpace(dbDirectory))
+        {
+            Directory.CreateDirectory(dbDirectory);
+        }
+
+        return sqlite.ToString();
+    }
+
+    private static SqliteConnectionStringBuilder BuildSqliteConnectionString(IConfiguration configuration, string contentRootPath)
     {
         var configuredConnectionString = configuration.GetConnectionString("DefaultConnection");
         var configuredDbPath =
@@ -65,13 +84,7 @@ public static class DependencyInjection
             sqlite.DataSource = Path.GetFullPath(Path.Combine(contentRootPath, sqlite.DataSource));
         }
 
-        var dbDirectory = Path.GetDirectoryName(sqlite.DataSource);
-        if (!string.IsNullOrWhiteSpace(dbDirectory))
-        {
-            Directory.CreateDirectory(dbDirectory);
-        }
-
-        return sqlite.ToString();
+        return sqlite;
     }
 
     public static async Task SeedDemoDataAsync(IServiceProvider serviceProvider)
