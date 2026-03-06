@@ -14,21 +14,29 @@ public class IndexModel : PageModel
     public List<Activity> Activities { get; private set; } = new();
     public List<Contact> Contacts { get; private set; } = new();
     public List<Deal> Deals { get; private set; } = new();
+    public string? StatusMessage { get; private set; }
 
     [BindProperty] public InputModel Input { get; set; } = new();
 
     public async Task OnGetAsync()
     {
-        Activities = await _dbContext.Activities.Include(x => x.Contact).Include(x => x.Deal).OrderBy(x => x.IsCompleted).ThenBy(x => x.DueAt).ToListAsync();
-        Contacts = await _dbContext.Contacts.OrderBy(x => x.FirstName).Take(200).ToListAsync();
-        Deals = await _dbContext.Deals.OrderByDescending(x => x.CreatedAt).Take(200).ToListAsync();
+        await LoadPageDataAsync();
     }
 
     public async Task<IActionResult> OnPostSaveAsync()
     {
         var contactId = Guid.TryParse(Input.ContactId, out var c) ? c : (Guid?)null;
-        if (contactId is null) return RedirectToPage();
+        if (contactId is null)
+        {
+            ModelState.AddModelError("Input.ContactId", "Contact is required.");
+            StatusMessage = "Please select a contact before saving the activity.";
+            await LoadPageDataAsync();
+            return Page();
+        }
+
         var dealId = Guid.TryParse(Input.DealId, out var d) ? d : (Guid?)null;
+        var activityType = string.IsNullOrWhiteSpace(Input.Type) ? "Task" : Input.Type.Trim();
+        var activityDescription = Input.Description?.Trim() ?? string.Empty;
 
         if (Input.Id is null || Input.Id == Guid.Empty)
         {
@@ -36,8 +44,8 @@ public class IndexModel : PageModel
             {
                 ContactId = contactId.Value,
                 DealId = dealId,
-                Type = Input.Type,
-                Description = Input.Description,
+                Type = activityType,
+                Description = activityDescription,
                 DueAt = Input.DueAt,
                 IsCompleted = Input.IsCompleted
             });
@@ -49,10 +57,16 @@ public class IndexModel : PageModel
             {
                 existing.ContactId = contactId.Value;
                 existing.DealId = dealId;
-                existing.Type = Input.Type;
-                existing.Description = Input.Description;
+                existing.Type = activityType;
+                existing.Description = activityDescription;
                 existing.DueAt = Input.DueAt;
                 existing.IsCompleted = Input.IsCompleted;
+            }
+            else
+            {
+                StatusMessage = "Activity not found.";
+                await LoadPageDataAsync();
+                return Page();
             }
         }
 
@@ -76,5 +90,25 @@ public class IndexModel : PageModel
         public string Description { get; set; } = string.Empty;
         public DateTime? DueAt { get; set; }
         public bool IsCompleted { get; set; }
+    }
+
+    private async Task LoadPageDataAsync()
+    {
+        Activities = await _dbContext.Activities
+            .Include(x => x.Contact)
+            .Include(x => x.Deal)
+            .OrderBy(x => x.IsCompleted)
+            .ThenBy(x => x.DueAt)
+            .ToListAsync();
+
+        Contacts = await _dbContext.Contacts
+            .OrderBy(x => x.FirstName)
+            .Take(200)
+            .ToListAsync();
+
+        Deals = await _dbContext.Deals
+            .OrderByDescending(x => x.CreatedAt)
+            .Take(200)
+            .ToListAsync();
     }
 }

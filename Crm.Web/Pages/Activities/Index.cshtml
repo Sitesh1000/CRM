@@ -3,6 +3,16 @@
 @{ ViewData["Title"] = "Activities"; }
 <div class="crm-card">
  <div class="d-flex justify-content-between align-items-center mb-3"><h4 class="mb-0">Activities List</h4><button class="btn btn-crm" data-bs-toggle="modal" data-bs-target="#activityModal" onclick="openAddModal()">Add Activity</button></div>
+ @if (!string.IsNullOrWhiteSpace(Model.StatusMessage))
+ {
+   <div class="alert alert-warning">@Model.StatusMessage</div>
+ }
+ @if (!ModelState.IsValid)
+ {
+   <div class="alert alert-danger">
+     <div asp-validation-summary="All"></div>
+   </div>
+ }
  <div class="table-responsive"><table class="table align-middle"><thead><tr><th>Type</th><th>Contact</th><th>Deal</th><th>Due</th><th>Status</th><th style="width:220px">Actions</th></tr></thead><tbody>
  @foreach (var a in Model.Activities){<tr><td>@a.Type<div class="small text-muted">@a.Description</div></td><td>@a.Contact?.FirstName @a.Contact?.LastName</td><td>@a.Deal?.Title</td><td>@a.DueAt?.ToString("dd MMM yyyy")</td><td>@(a.IsCompleted?"Completed":"Open")</td><td><div class="d-flex gap-2"><a class="btn btn-sm btn-outline-primary" href="/activities/details/@a.Id">Details</a><button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#activityModal" data-id="@a.Id" data-contactid="@a.ContactId" data-dealid="@a.DealId" data-type="@a.Type" data-description="@a.Description" data-dueat="@(a.DueAt?.ToString("yyyy-MM-dd"))" data-iscompleted="@a.IsCompleted" onclick="openEditModal(this)">Edit</button><form method="post" asp-page-handler="Delete" asp-route-id="@a.Id" onsubmit="return confirm('Delete this activity?');"><button class="btn btn-sm btn-outline-danger">Delete</button></form></div></td></tr>}
  </tbody></table></div>
@@ -10,7 +20,7 @@
 <div class="modal fade" id="activityModal" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content"><form method="post" asp-page-handler="Save"><div class="modal-header"><h5 class="modal-title" id="activityModalTitle">Add Activity</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body row g-2"><input type="hidden" asp-for="Input.Id" id="activity-id" /><div class="col-md-6"><label class="form-label">Contact</label><select asp-for="Input.ContactId" id="activity-contactid" class="form-select" required><option value="">Select contact</option>@foreach (var c in Model.Contacts){<option value="@c.Id">@c.FirstName @c.LastName</option>}</select></div><div class="col-md-6"><label class="form-label">Deal</label><select asp-for="Input.DealId" id="activity-dealid" class="form-select"><option value="">Optional deal</option>@foreach (var d in Model.Deals){<option value="@d.Id">@d.Title</option>}</select></div><div class="col-md-6"><label class="form-label">Type</label><input asp-for="Input.Type" id="activity-type" class="form-control" /></div><div class="col-md-6"><label class="form-label">Due Date</label><input asp-for="Input.DueAt" type="date" id="activity-dueat" class="form-control" /></div><div class="col-12"><label class="form-label">Description</label><textarea asp-for="Input.Description" id="activity-description" class="form-control" rows="3"></textarea></div><div class="col-12"><div class="form-check"><input asp-for="Input.IsCompleted" id="activity-iscompleted" class="form-check-input" /><label asp-for="Input.IsCompleted" class="form-check-label">Completed</label></div></div></div><div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-crm">Save</button></div></form></div></div></div>
 @section Scripts {
 <script>
-function openAddModal(){document.getElementById('activityModalTitle').textContent='Add Activity';['id','contactid','dealid','type','description','dueat'].forEach(x=>document.getElementById('activity-'+x).value='');document.getElementById('activity-iscompleted').checked=false;}
+function openAddModal(){document.getElementById('activityModalTitle').textContent='Add Activity';['id','contactid','dealid','description','dueat'].forEach(x=>document.getElementById('activity-'+x).value='');document.getElementById('activity-type').value='Task';document.getElementById('activity-iscompleted').checked=false;}
 function openEditModal(btn){document.getElementById('activityModalTitle').textContent='Edit Activity';['id','contactid','dealid','type','description','dueat'].forEach(x=>document.getElementById('activity-'+x).value=btn.dataset[x]||'');document.getElementById('activity-iscompleted').checked=(btn.dataset.iscompleted||'').toLowerCase()==='true';}
 </script>
 }
