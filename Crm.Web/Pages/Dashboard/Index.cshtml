@@ -1,0 +1,151 @@
+@page "/Dashboard"
+@model Crm.Web.Pages.Dashboard.IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="page-title mb-1">Sales Dashboard</h1>
+        <p class="text-muted mb-0">Track leads, pipeline, quotes, and payments in one place.</p>
+    </div>
+    <a class="btn btn-crm" href="/Deals/Pipeline">Open Pipeline</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="metric-card">
+            <span>Companies</span>
+            <strong>@Model.Metrics.TotalCompanies</strong>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-3">
+        <div class="metric-card">
+            <span>Contacts</span>
+            <strong>@Model.Metrics.TotalContacts</strong>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-3">
+        <div class="metric-card">
+            <span>Open Leads</span>
+            <strong>@Model.Metrics.OpenLeads</strong>
+        </div>
+    </div>
+
+    <div class="col-6 col-lg-3">
+        <div class="metric-card">
+            <span>Active Deals</span>
+            <strong>@Model.Metrics.ActiveDeals</strong>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="metric-card">
+            <span>Pipeline Value</span>
+            <strong>&#8377;@Model.Metrics.PipelineValue.ToString("N0")</strong>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="metric-card">
+            <span>Invoiced</span>
+            <strong>&#8377;@Model.Metrics.InvoicedAmount.ToString("N0")</strong>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="metric-card">
+            <span>Payments Received</span>
+            <strong>&#8377;@Model.Metrics.ReceivedPayments.ToString("N0")</strong>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="crm-card">
+            <h5 class="mb-3">Top Active Deals</h5>
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Deal</th>
+                        <th>Stage</th>
+                        <th class="text-end">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var d in Model.ActiveDeals)
+                {
+                    <tr>
+                        <td>
+                            @d.Title
+                            <div class="small text-muted">
+                                @d.Contact?.FirstName @d.Contact?.LastName
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge text-bg-light">@d.Stage</span>
+                        </td>
+                        <td class="text-end">
+                            &#8377;@d.Amount.ToString("N0")
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="crm-card">
+            <h5 class="mb-3">Upcoming Activities</h5>
+            <ul class="timeline-list">
+            @foreach (var a in Model.UpcomingActivities)
+            {
+                <li>
+                    <div class="timeline-dot"></div>
+                    <div>
+                        <strong>@a.Type</strong> for @a.Contact?.FirstName @a.Contact?.LastName
+                        <div class="small text-muted">@a.Description</div>
+                        <div class="small">
+                            Due: @(a.DueAt?.ToString("dd MMM yyyy") ?? "No due date")
+                        </div>
+                    </div>
+                </li>
+            }
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="crm-card mt-3">
+    <h5 class="mb-3">Latest Leads</h5>
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Company</th>
+                    <th>Source</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var lead in Model.LatestLeads)
+            {
+                <tr>
+                    <td>
+                        @lead.Name
+                        <div class="small text-muted">@lead.Email</div>
+                    </td>
+                    <td>@lead.CompanyName</td>
+                    <td>@lead.Source</td>
+                    <td>@(lead.IsConverted ? "Converted" : "Open")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
