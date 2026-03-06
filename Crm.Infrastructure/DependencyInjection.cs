@@ -14,9 +14,12 @@ namespace Crm.Infrastructure;
 
 public static class DependencyInjection
 {
+    private const string CrmDbPathEnvVar = "CRM_DB_PATH";
+    private const string GenericDbPathEnvVar = "DATABASE_PATH";
+
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, string contentRootPath)
     {
-        var connectionString = ResolveSqliteConnectionString(configuration.GetConnectionString("DefaultConnection"), contentRootPath);
+        var connectionString = ResolveSqliteConnectionString(configuration, contentRootPath);
 
         services.AddDbContext<CrmDbContext>(options => options.UseSqlite(connectionString));
 
@@ -39,9 +42,19 @@ public static class DependencyInjection
         return services;
     }
 
-    private static string ResolveSqliteConnectionString(string? configuredConnectionString, string contentRootPath)
+    private static string ResolveSqliteConnectionString(IConfiguration configuration, string contentRootPath)
     {
+        var configuredConnectionString = configuration.GetConnectionString("DefaultConnection");
+        var configuredDbPath =
+            Environment.GetEnvironmentVariable(CrmDbPathEnvVar) ??
+            Environment.GetEnvironmentVariable(GenericDbPathEnvVar);
+
         var sqlite = new SqliteConnectionStringBuilder(configuredConnectionString ?? "Data Source=App_Data/crm.db");
+
+        if (!string.IsNullOrWhiteSpace(configuredDbPath))
+        {
+            sqlite.DataSource = configuredDbPath;
+        }
 
         if (string.IsNullOrWhiteSpace(sqlite.DataSource))
         {
