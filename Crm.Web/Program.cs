@@ -3,12 +3,14 @@ using Crm.Web.Api;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
+var contentRootPath = builder.Environment.ContentRootPath;
+Directory.CreateDirectory(Path.Combine(contentRootPath, "App_Data"));
 
 // 🔥 ADD THIS FOR RENDER
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 builder.WebHost.UseUrls($"http://*:{port}");
 
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration, contentRootPath);
 builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme).AddIdentityCookies();
 builder.Services.AddAuthorization();
 
@@ -30,7 +32,6 @@ builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 
-Directory.CreateDirectory(Path.Combine(app.Environment.ContentRootPath, "App_Data"));
 await DependencyInjection.SeedDemoDataAsync(app.Services);
 
 if (!app.Environment.IsDevelopment())

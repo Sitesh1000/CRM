@@ -3,6 +3,7 @@ using Crm.Domain.Entities;
 using Crm.Domain.Enums;
 using Crm.Infrastructure.Identity;
 using Crm.Infrastructure.Persistence;
+using Microsoft.Data.Sqlite;
 using Crm.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,9 @@ namespace Crm.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, string contentRootPath)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection")
-            ?? "Data Source=App_Data/crm.db";
+        var connectionString = ResolveSqliteConnectionString(configuration.GetConnectionString("DefaultConnection"), contentRootPath);
 
         services.AddDbContext<CrmDbContext>(options => options.UseSqlite(connectionString));
 
@@ -37,6 +37,28 @@ public static class DependencyInjection
         services.AddScoped<IDashboardService, DashboardService>();
 
         return services;
+    }
+
+    private static string ResolveSqliteConnectionString(string? configuredConnectionString, string contentRootPath)
+    {
+        var sqlite = new SqliteConnectionStringBuilder(configuredConnectionString ?? "Data Source=App_Data/crm.db");
+
+        if (string.IsNullOrWhiteSpace(sqlite.DataSource))
+        {
+            sqlite.DataSource = Path.Combine(contentRootPath, "App_Data", "crm.db");
+        }
+        else if (!Path.IsPathRooted(sqlite.DataSource))
+        {
+            sqlite.DataSource = Path.GetFullPath(Path.Combine(contentRootPath, sqlite.DataSource));
+        }
+
+        var dbDirectory = Path.GetDirectoryName(sqlite.DataSource);
+        if (!string.IsNullOrWhiteSpace(dbDirectory))
+        {
+            Directory.CreateDirectory(dbDirectory);
+        }
+
+        return sqlite.ToString();
     }
 
     public static async Task SeedDemoDataAsync(IServiceProvider serviceProvider)

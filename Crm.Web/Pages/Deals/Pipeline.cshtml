@@ -38,13 +38,7 @@
                 <div class="d-flex gap-2 mt-2 mb-2">
                     <a class="btn btn-sm btn-outline-primary" href="/deals/details/@deal.Id">Details</a>
 
-                    <button type="button"
-                            class="btn btn-sm btn-outline-secondary"
-                            data-bs-toggle="modal"
-                            data-bs-target="#dealModal"
-                            data-id="@deal.Id"
-                            data-title="@deal.Title"
-                            data-amount="@deal.Amount"
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#dealModal" data-id="@deal.Id" data-title="@deal.Title" data-amount="@deal.Amount"
                             data-stage="@deal.Stage"
                             data-contactid="@deal.ContactId"
                             data-expectedclosedate="@(deal.ExpectedCloseDate?.ToString("yyyy-MM-dd"))"
