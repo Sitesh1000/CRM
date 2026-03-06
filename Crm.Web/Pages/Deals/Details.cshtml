@@ -17,7 +17,7 @@ else
         </div>
         <div class="row g-2">
             <div class="col-md-4"><strong>Stage:</strong> @Model.Deal.Stage</div>
-            <div class="col-md-4"><strong>Amount:</strong> @Model.Deal.Amount.ToString("C")</div>
+            <div class="col-md-4"><strong>Amount:</strong> &#8377;@Model.Deal.Amount.ToString("N2")</div>
             <div class="col-md-4"><strong>Expected Close:</strong> @Model.Deal.ExpectedCloseDate?.ToString("dd MMM yyyy")</div>
             <div class="col-md-6"><strong>Contact:</strong> @Model.Deal.Contact?.FirstName @Model.Deal.Contact?.LastName</div>
             <div class="col-md-6"><strong>Lead:</strong> @Model.Deal.Lead?.Name</div>
@@ -29,7 +29,7 @@ else
         <ul class="mb-0">
             @foreach (var q in Model.Quotes)
             {
-                <li>@q.QuoteNumber - @q.TotalAmount.ToString("C")</li>
+                <li>@q.QuoteNumber - &#8377;@q.TotalAmount.ToString("N2")</li>
             }
         </ul>
     </div>

@@ -28,8 +28,7 @@
                     @deal.Contact?.FirstName @deal.Contact?.LastName
                 </div>
 
-                <!-- ✅ FIXED INR FORMAT -->
-                <div>₹@deal.Amount.ToString("N0")</div>
+                <div>&#8377;@deal.Amount.ToString("N0")</div>
 
                 <div class="small">
                     Expected: @deal.ExpectedCloseDate?.ToString("dd MMM yyyy")

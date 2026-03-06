@@ -4,5 +4,5 @@
 <div class="crm-card">
  <div class="d-flex justify-content-between align-items-center mb-2"><h4 class="mb-0">@Model.Invoice?.InvoiceNumber</h4><a class="btn btn-outline-secondary btn-sm" href="/invoices/list">Back</a></div>
  <div>Quote: @Model.Invoice?.Quote?.QuoteNumber</div><div>Contact: @Model.Invoice?.Contact?.FirstName @Model.Invoice?.Contact?.LastName</div>
- <div>Total: @Model.Invoice?.TotalAmount.ToString("C") | Paid: @Model.Invoice?.PaidAmount.ToString("C")</div>
+ <div>Total: &#8377;@Model.Invoice?.TotalAmount.ToString("N2") | Paid: &#8377;@Model.Invoice?.PaidAmount.ToString("N2")</div>
 </div>

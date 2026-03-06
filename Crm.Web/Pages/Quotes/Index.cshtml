@@ -10,7 +10,7 @@
     @foreach (var q in Model.Quotes)
     {
       <tr>
-       <td>@q.QuoteNumber</td><td>@q.Deal?.Title</td><td>@q.Contact?.FirstName @q.Contact?.LastName</td><td>@q.TotalAmount.ToString("C")</td>
+       <td>@q.QuoteNumber</td><td>@q.Deal?.Title</td><td>@q.Contact?.FirstName @q.Contact?.LastName</td><td>&#8377;@q.TotalAmount.ToString("N2")</td>
        <td><div class="d-flex gap-2">
         <a class="btn btn-sm btn-outline-primary" href="/quotes/details/@q.Id">Details</a>
         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#quoteModal" data-id="@q.Id" data-quotenumber="@q.QuoteNumber" data-dealid="@q.DealId" data-contactid="@q.ContactId" data-totalamount="@q.TotalAmount" onclick="openEditModal(this)">Edit</button>
